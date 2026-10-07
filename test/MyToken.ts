@@ -45,7 +45,11 @@ describe("mytoken deploy", () => {
     describe("Transfer", () => {
         it("should have 0.5MT", async () => {
             const signer1 = signers[1];
-            await myTokenC.transfer(hre.ethers.parseUnits("0.5", decimals), signer1.address);
+            const tx = await myTokenC.transfer(hre.ethers.parseUnits("0.5", decimals), signer1.address);
+
+            const receipt = await tx.wait();
+            console.log(receipt?.logs);
+
             expect(await myTokenC.balanceOf(signer1.address)).equal(
                 hre.ethers.parseUnits("0.5", decimals)
             );

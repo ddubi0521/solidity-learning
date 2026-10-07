@@ -9,7 +9,7 @@ const decimals = 18n;
 describe("mytoken deploy", () => {
     let myTokenC: MyToken;
     let signers: HardhatEthersSigner[];
-    before("should deploy", async () => {
+    beforeEach("should deploy", async () => {
         signers = await hre.ethers.getSigners();
         myTokenC = await hre.ethers.deployContract("MyToken", [
             "MyToken",
@@ -59,6 +59,38 @@ describe("mytoken deploy", () => {
             await expect(
                 myTokenC.transfer(hre.ethers.parseUnits((mintingAmount + 1n).toString(), decimals), signer1.address)
             ).to.be.revertedWith("insufficient balance");
+        });
+
+        describe("TransferFrom", () => {
+            it("should emit Approval event", async () => {
+                const signer1 = signers[1];
+                await expect(
+                    myTokenC.approve(signer1.address, hre.ethers.parseUnits("10", decimals))
+                ).to.emit(myTokenC, "Approval")
+                    .withArgs(signer1.address, hre.ethers.parseUnits("10", decimals));
+            });
+            it("should be reverted with insufficient allowance error", async () => {
+                const signer0 = signers[0];
+                const signer1 = signers[1];
+                await expect(
+                    myTokenC.connect(signer1).transferFrom(signer0.address, signer1.address, hre.ethers.parseUnits("1", decimals))
+                ).to.be.revertedWith("insufficient allowance");
+            });
+            it("homework2: signer1번에 의한 signer0번 자산 이동 (approve & transferFrom)", async () => {
+                const signer0 = signers[0];
+                const signer1 = signers[1];
+                const amount = hre.ethers.parseUnits("0.5", decimals);
+                
+                // 1. approve: signer1에게 signer0의 자산 이동권한 부여
+                await myTokenC.connect(signer0).approve(signer1.address, amount);
+                
+                // 2. transferFrom: signer1이 signer0의 MT토큰을 자신의 주소(signer1)에게 전송
+                await myTokenC.connect(signer1).transferFrom(signer0.address, signer1.address, amount);
+
+                // 3. balance 확인
+                expect(await myTokenC.balanceOf(signer0.address)).equal(hre.ethers.parseUnits("0.5", decimals));
+                expect(await myTokenC.balanceOf(signer1.address)).equal(hre.ethers.parseUnits("0.5", decimals));
+            });
         });
     })
 });

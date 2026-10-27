@@ -2,6 +2,7 @@ import hre from "hardhat";
 import { expect } from "chai";
 import { MyToken } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
+import { DECIMALS, MINTINGAMOUNT } from "./constant";
 
 const MINTINGAMOUNT = 1n;
 const DECIMALS = 18n;
@@ -51,7 +52,7 @@ describe("mytoken deploy", () => {
             console.log(receipt?.logs);
 
             expect(await myTokenC.balanceOf(signer1.address)).equal(
-                hre.ethers.parseUnits("0.5", decimals)
+                hre.ethers.parseUnits("0.5", DECIMALS)
             );
         });
         it("should be reverted with insufficient balance error", async () => {

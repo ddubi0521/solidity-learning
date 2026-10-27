@@ -3,8 +3,8 @@ import { expect } from "chai";
 import { MyToken } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
-const mintingAmount = 1n;
-const decimals = 18n;
+const MINTINGAMOUNT = 1n;
+const DECIMALS = 18n;
 
 describe("mytoken deploy", () => {
     let myTokenC: MyToken;
@@ -14,8 +14,8 @@ describe("mytoken deploy", () => {
         myTokenC = await hre.ethers.deployContract("MyToken", [
             "MyToken",
             "MT",
-            decimals,
-            mintingAmount,
+            DECIMALS,
+            MINTINGAMOUNT,
         ]);
     });
 
@@ -27,10 +27,10 @@ describe("mytoken deploy", () => {
             expect(await myTokenC.symbol()).equal("MT");
         });
         it("should return decimals", async () => {
-            expect(await myTokenC.decimals()).equal(decimals);
+            expect(await myTokenC.decimals()).equal(DECIMALS);
         });
         it("should return 0 totalSupply", async () => {
-            expect(await myTokenC.totalSupply()).equal(mintingAmount * 10n ** decimals);
+            expect(await myTokenC.totalSupply()).equal(MINTINGAMOUNT * 10n ** DECIMALS);
         });
     });
 
@@ -38,14 +38,14 @@ describe("mytoken deploy", () => {
     describe("Mint", () => {
         it("should return 1MT balance for signer 0", async () => {
             const signer0 = signers[0];
-            expect(await myTokenC.balanceOf(signer0)).equal(mintingAmount * 10n ** decimals);
+            expect(await myTokenC.balanceOf(signer0)).equal(MINTINGAMOUNT * 10n ** DECIMALS);
         });
     });
 
     describe("Transfer", () => {
         it("should have 0.5MT", async () => {
             const signer1 = signers[1];
-            const tx = await myTokenC.transfer(hre.ethers.parseUnits("0.5", decimals), signer1.address);
+            const tx = await myTokenC.transfer(hre.ethers.parseUnits("0.5", DECIMALS), signer1.address);
 
             const receipt = await tx.wait();
             console.log(receipt?.logs);
@@ -57,7 +57,7 @@ describe("mytoken deploy", () => {
         it("should be reverted with insufficient balance error", async () => {
             const signer1 = signers[1];
             await expect(
-                myTokenC.transfer(hre.ethers.parseUnits((mintingAmount + 1n).toString(), decimals), signer1.address)
+                myTokenC.transfer(hre.ethers.parseUnits((MINTINGAMOUNT + 1n).toString(), DECIMALS), signer1.address)
             ).to.be.revertedWith("insufficient balance");
         });
 
@@ -65,21 +65,21 @@ describe("mytoken deploy", () => {
             it("should emit Approval event", async () => {
                 const signer1 = signers[1];
                 await expect(
-                    myTokenC.approve(signer1.address, hre.ethers.parseUnits("10", decimals))
+                    myTokenC.approve(signer1.address, hre.ethers.parseUnits("10", DECIMALS))
                 ).to.emit(myTokenC, "Approval")
-                    .withArgs(signer1.address, hre.ethers.parseUnits("10", decimals));
+                    .withArgs(signer1.address, hre.ethers.parseUnits("10", DECIMALS));
             });
             it("should be reverted with insufficient allowance error", async () => {
                 const signer0 = signers[0];
                 const signer1 = signers[1];
                 await expect(
-                    myTokenC.connect(signer1).transferFrom(signer0.address, signer1.address, hre.ethers.parseUnits("1", decimals))
+                    myTokenC.connect(signer1).transferFrom(signer0.address, signer1.address, hre.ethers.parseUnits("1", DECIMALS))
                 ).to.be.revertedWith("insufficient allowance");
             });
             it("homework2: signer1번에 의한 signer0번 자산 이동 (approve & transferFrom)", async () => {
                 const signer0 = signers[0];
                 const signer1 = signers[1];
-                const amount = hre.ethers.parseUnits("0.5", decimals);
+                const amount = hre.ethers.parseUnits("0.5", DECIMALS);
                 
                 // 1. approve: signer1에게 signer0의 자산 이동권한 부여
                 await myTokenC.connect(signer0).approve(signer1.address, amount);
@@ -88,8 +88,8 @@ describe("mytoken deploy", () => {
                 await myTokenC.connect(signer1).transferFrom(signer0.address, signer1.address, amount);
 
                 // 3. balance 확인
-                expect(await myTokenC.balanceOf(signer0.address)).equal(hre.ethers.parseUnits("0.5", decimals));
-                expect(await myTokenC.balanceOf(signer1.address)).equal(hre.ethers.parseUnits("0.5", decimals));
+                expect(await myTokenC.balanceOf(signer0.address)).equal(hre.ethers.parseUnits("0.5", DECIMALS));
+                expect(await myTokenC.balanceOf(signer1.address)).equal(hre.ethers.parseUnits("0.5", DECIMALS));
             });
         });
     })

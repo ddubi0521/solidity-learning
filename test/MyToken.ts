@@ -53,8 +53,8 @@ describe("mytoken deploy", () => {
             const signer1 = signers[1];
             const tx = await myTokenC.transfer(hre.ethers.parseUnits("50", DECIMALS), signer1.address);
 
-            const receipt = await tx.wait();
-            console.log(receipt?.logs);
+            // const receipt = await tx.wait();
+            // console.log(receipt?.logs);
 
             expect(await myTokenC.balanceOf(signer1.address)).equal(
                 hre.ethers.parseUnits("50", DECIMALS)

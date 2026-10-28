@@ -45,17 +45,17 @@ describe("hardhat-test", () => {
             value: ethers.parseEther("100"),
         };
 
-        console.log("1. 시작");
+        // console.log("1. 시작");
 
         const populatedTx = await bobWallet.populateTransaction(tx);
-        console.log("2. populate 완료");
+        // console.log("2. populate 완료");
 
         const signedTx = await bobWallet.signTransaction(populatedTx);
-        console.log("3. 서명 완료");
+        // console.log("3. 서명 완료");
 
         const txHash = await provider.send("eth_sendRawTransaction", [signedTx]);
-        console.log("4. 전송 완료:", txHash);
-        console.log("Bob 잔액:", ethers.formatEther(await provider.getBalance(bobWallet.address)));
-        console.log("Alice 잔액:", ethers.formatEther(await provider.getBalance(aliceWallet.address)));
+        // console.log("4. 전송 완료:", txHash);
+        // console.log("Bob 잔액:", ethers.formatEther(await provider.getBalance(bobWallet.address)));
+        // console.log("Alice 잔액:", ethers.formatEther(await provider.getBalance(aliceWallet.address)));
     });
 });

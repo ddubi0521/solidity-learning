@@ -28,7 +28,8 @@ describe("hardhat-test", () => {
     });
 
     it("ethers test", async () => {
-        const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+        const provider = hre.ethers.provider;
+        // const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
         const bobWallet = new ethers.Wallet(
             "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
             provider
@@ -44,10 +45,17 @@ describe("hardhat-test", () => {
             value: ethers.parseEther("100"),
         };
 
+        console.log("1. 시작");
+
         const populatedTx = await bobWallet.populateTransaction(tx);
+        console.log("2. populate 완료");
+
         const signedTx = await bobWallet.signTransaction(populatedTx);
+        console.log("3. 서명 완료");
+
         const txHash = await provider.send("eth_sendRawTransaction", [signedTx]);
-        console.log(ethers.formatEther(await provider.getBalance(bobWallet.address)));
-        console.log(ethers.formatEther(await provider.getBalance(aliceWallet.address)));
+        console.log("4. 전송 완료:", txHash);
+        console.log("Bob 잔액:", ethers.formatEther(await provider.getBalance(bobWallet.address)));
+        console.log("Alice 잔액:", ethers.formatEther(await provider.getBalance(aliceWallet.address)));
     });
 });
